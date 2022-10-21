@@ -1,17 +1,39 @@
-import { pokemonApi } from '../../../api/pokemonApi';
-import { setPokemons, startLoadingPokemons } from './pokemonSlice';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getPokemons } from './store/slices/pokemon';
 
 
+export const PokemonApp = () => {
 
-export const getPokemons = ( page = 0 ) => {
-    return async( dispatch, getState ) => {
-        dispatch( startLoadingPokemons() );
+  const dispatch = useDispatch();
+  const { isLoading, pokemons = [], page } = useSelector( state => state.pokemons );
 
-        // TODO: realizar petición http
-        // const resp = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=10&offset=${ page * 10 }`);
-        // const data = await resp.json();
-        const { data } = await pokemonApi.get(`/pokemon?limit=10&offset=${ page * 10 }`);
 
-        dispatch( setPokemons({ pokemons: data.results, page: page + 1 }) );
-    }
+  useEffect(() => {
+    dispatch( getPokemons() );    
+  }, [])
+  
+
+  return (
+    <>
+        <h1>PokemonApp</h1>
+        <hr />
+        <span>Loading: { isLoading ? 'True': 'False' }</span>
+
+        <ul>
+          {
+            pokemons.map( ({ name }) => (
+              <li key={ name }>{ name }</li>
+            ))
+          }
+        </ul>
+
+        <button
+          disabled={ isLoading }
+          onClick={ () => dispatch( getPokemons(page) ) }
+        >
+          Next
+        </button>
+    </>
+  )
 }
